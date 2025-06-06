@@ -172,7 +172,7 @@ interface TaskHandler {
   checkTask(task: Task): boolean;
   handleTask(task: Task, run: TaskQueueRun): Promise<boolean>;
   getNumTries(task: Task): number;
-  handleDelay(task: Task, numTry: number): Promise<void>;
+  handleDelay(task: Task, numTry: number, delayTime: number): Promise<void>;
   getInfo(task: Task): TaskInfo;
   calculateCost(task: Task): CostItem[];
 }
@@ -181,24 +181,25 @@ export const getSceneKey = (session: Session, scene: GenericScene) => {
   return session.name + '/' + scene.type + '/' + scene.name;
 };
 
-async function handleNAIDelay(numTry: number, fast: boolean) {
+async function handleNAIDelay(numTry: number, fast: boolean, delayTime: number) {
   if (numTry === 0 && fast) {
-    await sleep(1000);
+    await sleep(delayTime);
   } else if (numTry <= 2 && fast) {
-    await sleep((1 + Math.random() * RANDOM_DELAY_STD) * 1000);
+    await sleep((1 + Math.random() * RANDOM_DELAY_STD) * delayTime);
   } else {
     console.log('slow delay');
     if (numTry === 0 && Math.random() > 0.98) {
       await sleep(
         (Math.random() * LARGE_RANDOM_DELAY_STD + LARGE_RANDOM_DELAY_BIAS) *
-          1000,
+        delayTime,
       );
     } else {
       await sleep(
-        (Math.random() * RANDOM_DELAY_STD + RANDOM_DELAY_BIAS) * 1000,
+        (Math.random() * RANDOM_DELAY_STD + RANDOM_DELAY_BIAS) * delayTime,
       );
     }
   }
+  return;
 }
 
 type ImageTaskType = 'gen' | 'inpaint' | 'i2i';
@@ -235,8 +236,8 @@ class GenerateImageTaskHandler implements TaskHandler {
       );
   }
 
-  async handleDelay(task: Task, numTry: number): Promise<void> {
-    await handleNAIDelay(numTry, this.fast);
+  async handleDelay(task: Task, numTry: number, delayTime: number): Promise<void> {
+    await handleNAIDelay(numTry, this.fast, delayTime);
   }
 
   checkTask(task: Task): boolean {
@@ -411,7 +412,7 @@ class RemoveBgTaskHandler implements TaskHandler {
     );
   }
 
-  async handleDelay(task: Task, numTry: number): Promise<void> {
+  async handleDelay(task: Task, numTry: number, delayTime: number): Promise<void> {
     return;
   }
 
@@ -462,8 +463,8 @@ class AugmentTaskHandler implements TaskHandler {
     );
   }
 
-  async handleDelay(task: Task, numTry: number): Promise<void> {
-    await handleNAIDelay(numTry, false);
+  async handleDelay(task: Task, numTry: number, delayTime: number): Promise<void> {
+    await handleNAIDelay(numTry, false, delayTime);
   }
 
   async handleTask(task: Task, run: TaskQueueRun) {
@@ -725,6 +726,8 @@ export class TaskQueueService extends EventTarget {
 
   async runInternal(cur: TaskQueueRun) {
     this.dispatchProgress();
+    const config = await backend.getConfig();
+    const delayTime = config.delayTime ?? 0;
     while (!this.queue.isEmpty()) {
       const task = this.queue.peek();
       if (task.done >= task.total) {
@@ -742,7 +745,7 @@ export class TaskQueueService extends EventTarget {
           return;
         }
         try {
-          await handler.handleDelay(task, i);
+          await handler.handleDelay(task, i, delayTime);
           await handler.handleTask(task, cur);
           const after = Date.now();
           this.timeEstimators[task.cls].addSample(after - before);
@@ -751,7 +754,7 @@ export class TaskQueueService extends EventTarget {
           if (cur.delayCnt === 0) {
             await sleep(
               (Math.random() * LARGE_WAIT_DELAY_STD + LARGE_WAIT_DELAY_BIAS) *
-                1000,
+                delayTime,
             );
             cur.delayCnt = this.getDelayCnt();
           }

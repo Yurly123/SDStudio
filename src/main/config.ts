@@ -22,4 +22,5 @@ export interface Config {
   whiteMode?: boolean;
   disableQuality?: boolean;
   useAnimalModel?: boolean;
+  delayTime?: number;
 }
