@@ -189,7 +189,7 @@ export class NovelAiImageGenService implements ImageGenService {
       body.parameters.reference_strength_multiple = params.vibes.map(
         (v) => v.strength,
       );
-      if (params.normalizeStrength) {
+      if (params.normalizeStrength && params.vibes.length > 1) {
         const sum = body.parameters.reference_strength_multiple.reduce(
           (acc: number, val: number) => acc + val,
           0,
