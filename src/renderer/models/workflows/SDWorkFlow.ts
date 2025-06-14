@@ -179,7 +179,7 @@ const SDImageGenHandler = async (
       : preset.characterPrompts
     ).map((p: CharacterPrompt, i: number) => ({
       ...p,
-      prompt: lowerPromptNode(characterPrompts[i]),
+      prompt: characterPrompts[i],
     })),
     useCoords: preset.useCoords,
     legacyPromptConditioning: preset.legacyPromptConditioning,
@@ -347,7 +347,10 @@ const createSDI2IHandler = (type: string) => {
       prompt: { type: 'text', text: preset.prompt },
       sampling: preset.sampling,
       uc: preset.uc,
-      characterPrompts: preset.characterPrompts,
+      characterPrompts: preset.characterPrompts.map((p: CharacterPrompt) => ({
+        ...p,
+        prompt: { type: 'text', text: p.prompt || '' },
+      })),
       useCoords: preset.useCoords,
       legacyPromptConditioning: preset.legacyPromptConditioning,
       normalizeStrength: preset.normalizeStrength,

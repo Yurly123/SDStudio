@@ -330,7 +330,7 @@ class GenerateImageTaskHandler implements TaskHandler {
     };
     if (job.characterPrompts?.length) {
       for (const character of job.characterPrompts) {
-        arg.characterPrompts?.push(character.prompt);
+        arg.characterPrompts?.push(lowerPromptNode(character.prompt));
         arg.characterUCs?.push(character.uc);
         arg.characterPositions?.push(character.position);
       }

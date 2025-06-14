@@ -58,7 +58,7 @@ export interface SDAbstractJob<T> extends AbstractJob {
   sampling: string;
   prompt: T;
   uc: string;
-  characterPrompts: CharacterPrompt[];
+  characterPrompts: CharacterPrompt<T>[];
   useCoords: boolean;
   legacyPromptConditioning: boolean;
   normalizeStrength: boolean;
@@ -615,9 +615,9 @@ export const isValidPieceLibrary = (library: any) => {
   );
 };
 
-export interface CharacterPrompt {
+export interface CharacterPrompt<T = string> {
   id: string;
-  prompt: string;
+  prompt: T;
   uc: string;
   position: CharacterPosition;
 }
