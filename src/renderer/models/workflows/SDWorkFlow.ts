@@ -88,6 +88,7 @@ const SDImageGenUI = wfiStack([
     wfiInlineInput('Variety+', 'varietyPlus', 'preset', 'flex-none'),
   ]),
   wfiInlineInput('바이브 설정', 'vibes', 'shared', 'flex-none'),
+  
 ]);
 
 const SDImageGenEasyPreset = new WFVarBuilder()

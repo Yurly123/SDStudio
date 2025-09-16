@@ -116,7 +116,7 @@ const ConfigScreen = observer(({ onSave }: ConfigScreenProps) => {
     await backend.setConfig(config);
     appState.pushDialog({
       type: 'yes-only',
-      text: '저장 위치 지정 완료. 프로그램을 껏다 켜주세요',
+      text: '저장 위치 지정 완료. 프로그램을 껐다 켜주세요',
     });
   };
   const stageTexts = [

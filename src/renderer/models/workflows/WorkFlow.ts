@@ -137,6 +137,10 @@ export interface WFCharacterPromptsVar extends WFAbstractVar {
   default: CharacterPrompt[];
 }
 
+export interface WFCharacterReferenceVar extends WFAbstractVar {
+  type: 'characterReference';
+}
+
 export type WFVar =
   | WFIntVar
   | WFVibeSetVar
@@ -150,7 +154,8 @@ export type WFVar =
   | WFNullIntVar
   | WFStringVar
   | WFSelectVar
-  | WFCharacterPromptsVar;
+  | WFCharacterPromptsVar
+  | WFCharacterReferenceVar;
 
 export type WFFieldType = 'preset' | 'shared' | 'meta';
 
@@ -435,6 +440,14 @@ export class WFVarBuilder {
       type: 'characterPrompts',
       name,
       default: defaultValue,
+    });
+    return this;
+  }
+  
+  addCharacterReferenceVar(name: string): this {
+    this.vars.push({
+      type: 'characterReference',
+      name,
     });
     return this;
   }
