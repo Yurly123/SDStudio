@@ -110,7 +110,7 @@ export class NovelAiImageGenService implements ImageGenService {
 
     const config = await backend.getConfig();
 
-    let modelValue = this.translateModel(
+    const modelValue = this.translateModel(
       params.model,
       config.modelVersion ?? ModelVersion.V4_5,
     );

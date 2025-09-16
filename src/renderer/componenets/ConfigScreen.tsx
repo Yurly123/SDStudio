@@ -24,6 +24,7 @@ const ConfigScreen = observer(({ onSave }: ConfigScreenProps) => {
   const [noIpCheck, setNoIpCheck] = useState(false);
   const [disableQuality, setDisableQuality] = useState(false);
   const [modelVersion, setModelVersion] = useState(ModelVersion.V4_5);
+  const [furryMode, setFurryMode] = useState(false);
   const [delayTime, setDelayTime] = useState(0);
   const [useLocalBgRemoval, setUseLocalBgRemoval] = useState(false);
   const [refreshImage, setRefreshImage] = useState(false);
@@ -46,6 +47,7 @@ const ConfigScreen = observer(({ onSave }: ConfigScreenProps) => {
       setUseLocalBgRemoval(config.useLocalBgRemoval ?? false);
       setDisableQuality(config.disableQuality ?? false);
       setModelVersion(config.modelVersion ?? ModelVersion.V4_5);
+      setFurryMode(config.furryMode ?? false);
       setDelayTime(config.delayTime ?? 0);
     })();
     const checkReady = () => {
@@ -125,7 +127,7 @@ const ConfigScreen = observer(({ onSave }: ConfigScreenProps) => {
     '모델 압축 푸는 중...',
   ];
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center scrollable-content">
       <div className="bg-white dark:bg-slate-800 p-6 rounded shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-4 text-default">환경설정</h1>
         <div className="mb-4">
@@ -333,6 +335,16 @@ const ConfigScreen = observer(({ onSave }: ConfigScreenProps) => {
           </select>
         </div>
         <div className="mt-4 flex items-center gap-2">
+          <label htmlFor="furryMode" className="text-sm gray-label">
+            퍼리 모드 켜기
+          </label>
+          <input
+            type="checkbox"
+            checked={furryMode}
+            onChange={(e) => setFurryMode(e.target.checked)}
+          />
+        </div>
+        <div className="mt-4 flex items-center gap-2">
           <label htmlFor="delayTime" className="block text-sm gray-label">
             기본 지연 시간 조정 (0ms ~ 1000ms)
           </label>
@@ -363,6 +375,7 @@ const ConfigScreen = observer(({ onSave }: ConfigScreenProps) => {
               whiteMode: whiteMode,
               useLocalBgRemoval: useLocalBgRemoval,
               modelVersion: modelVersion,
+              furryMode: furryMode,
               delayTime: delayTime,
             };
             await backend.setConfig(config);

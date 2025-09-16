@@ -264,12 +264,16 @@ class GenerateImageTaskHandler implements TaskHandler {
   async handleTask(task: Task, run: TaskQueueRun) {
     const job: SDAbstractJob<PromptNode> = task.params
       .job as SDAbstractJob<PromptNode>;
+    const config = await backend.getConfig();
     let prompt = lowerPromptNode(job.prompt!);
     console.log('lowered prompt: ' + prompt);
     const outputFilePath =
       task.params.outputPath + '/' + Date.now().toString() + '.png';
     if (prompt === '') {
       prompt = '1girl';
+    }
+    if (config.furryMode) {
+      prompt = 'fur dataset, ' + prompt;
     }
     const vibes = await Promise.all(
       job.vibes.map(async (vibe) => {
@@ -352,7 +356,6 @@ class GenerateImageTaskHandler implements TaskHandler {
       arg.originalImage = true;
       arg.imageStrength = i2iJob.strength;
     }
-    const config = await backend.getConfig();
     if (!config.uuid) {
       config.uuid = v4();
       await backend.setConfig(config);

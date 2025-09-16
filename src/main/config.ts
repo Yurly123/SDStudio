@@ -25,4 +25,5 @@ export interface Config {
   disableQuality?: boolean;
   modelVersion?: ModelVersion;
   delayTime?: number;
+  furryMode?: boolean;
 }
