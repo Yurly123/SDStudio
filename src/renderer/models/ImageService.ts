@@ -201,9 +201,10 @@ export class ImageService extends EventTarget {
   }
 
   async writeReferenceImage(session: Session, name: string, data: string) {
+    const resized = await this.normalizeReferenceImage(data);
     const path =
       imageService.getReferenceDir(session) + '/' + name.split('/').pop()!;
-    await backend.writeDataFile(path, data);
+    await backend.writeDataFile(path, resized);
     await imageService.invalidateCache(path);
   }
 
@@ -332,6 +333,42 @@ export class ImageService extends EventTarget {
     });
   }
 
+  async normalizeReferenceImage(data: string): Promise<string> {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return data;
+    const img = new Image();
+    img.src = base64ToDataUri(data);
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+    });
+
+    const { canvasWidth, canvasHeight } = this.chooseReferenceResolution(img.width, img.height);
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+
+    const scale = Math.min(canvasWidth / img.width, canvasHeight / img.height);
+    const w = Math.floor(scale * img.width);
+    const h = Math.floor(scale * img.height);
+    const x = Math.floor((canvasWidth - w) / 2);
+    const y = Math.floor((canvasHeight - h) / 2);
+  
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    ctx.drawImage(img, x, y, w, h);
+    return canvas.toDataURL('image/png').split(',')[1];
+  }
+
+  chooseReferenceResolution(width: number, height: number) {
+    const ratio = width / height;
+    if (ratio >= 0.9 && ratio <= 1.1) 
+      return { canvasWidth: 1472, canvasHeight: 1472 };
+    else if (ratio < 1) 
+      return { canvasWidth: 1024, canvasHeight: 1536 };
+    else return { canvasWidth: 1536, canvasHeight: 1024 };
+  }
+
   getOutputs(session: Session, scene: GenericScene) {
     if (scene.type === 'scene') {
       return this.getImages(session, scene);
@@ -405,8 +442,9 @@ export class ImageService extends EventTarget {
   }
 
   async storeReferenceImage(session: Session, data: string) {
+    const resized = await this.normalizeReferenceImage(data);
     const path = imageService.getReferenceDir(session) + '/' + v4() + '.png';
-    await backend.writeDataFile(path, data);
+    await backend.writeDataFile(path, resized);
     return path.split('/').pop()!;
   }
 
