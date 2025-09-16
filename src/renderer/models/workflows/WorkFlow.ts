@@ -311,7 +311,6 @@ function materializeWFObj(type: string, vars: WFVar[]) {
     return json;
   };
 
-  console.log('created wf obj', obj);
   return obj;
 }
 

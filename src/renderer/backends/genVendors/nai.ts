@@ -150,8 +150,6 @@ export class NovelAiImageGenService implements ImageGenService {
         negative_prompt: params.uc,
         strength: params.imageStrength,
         qualityToggle: config.disableQuality ? false : true,
-        reference_image_multiple: [],
-        reference_strength_multiple: [],
         characterPrompts: [],
         use_coords: params.useCoords,
         legacy: false,
@@ -367,7 +365,7 @@ export class NovelAiImageGenService implements ImageGenService {
     const config = await backend.getConfig();
     const modelValue = this.translateModel(
       Model.Anime,
-      config.modelVersion ?? ModelVersion.V4,
+      config.modelVersion ?? ModelVersion.V4_5,
     );
     const body = {
       image: params.image,

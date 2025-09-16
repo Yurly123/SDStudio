@@ -384,7 +384,7 @@ export async function importPreset(session: Session, base64: string) {
     newJson.name = json.name;
     newJson.profile = json.profile;
     newJson.sampling = json.sampling ?? Sampling.KEulerAncestral;
-    newJson.noiseSchedule = json.noiseSchedule ?? 'native';
+    newJson.noiseSchedule = json.noiseSchedule ?? 'karras';
     newJson.promptGuidance = json.promptGuidance ?? 5;
     newJson.cfgRescale = json.cfgRescale ?? 0;
     newJson.frontPrompt = json.frontPrompt;

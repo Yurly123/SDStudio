@@ -32,6 +32,7 @@ import {
   ContextMenuType,
   PromptNode,
   PromptPiece,
+  ReferenceItem,
   Scene,
   VibeItem,
 } from '../models/types';
@@ -297,6 +298,7 @@ export const VibeButton = ({ input }: { input: WFIInlineInput }) => {
   const onClick = () => {
     setEditVibe(input);
   };
+  
   return (
     <>
       {editVibe == undefined && getField().length === 0 && (
@@ -312,6 +314,199 @@ export const VibeButton = ({ input }: { input: WFIInlineInput }) => {
           <div className={'flex-none mr-2 gray-label'}>바이브 설정:</div>
           <VibeImage
             path={imageService.getVibeImagePath(
+              appState.curSession!,
+              getField()[0].path,
+            )}
+            className="flex-1 h-14 rounded-xl object-cover cursor-pointer hover:brightness-95 active:brightness-90"
+            onClick={onClick}
+          />
+        </div>
+      )}
+    </>
+  );
+};
+
+interface CharacterReferenceEditorProps {
+  disabled: boolean;
+}
+
+export const CharacterReferenceEditor = observer(({ disabled }: CharacterReferenceEditorProps) => {
+  const { curSession } = appState;
+  const { preset, shared, editCharacterReference, setEditCharacterReference, meta } =
+    useContext(WFElementContext)!;
+
+  const getField = () => {
+    if (editCharacterReference!.fieldType === 'preset') return preset[editCharacterReference!.field];
+    if (editCharacterReference!.fieldType === 'shared') return shared[editCharacterReference!.field];
+    return meta![editCharacterReference!.field];
+  };
+  const setField = (val: any) => {
+    if (editCharacterReference!.fieldType === 'preset') preset[editCharacterReference!.field] = val;
+    else if (editCharacterReference!.fieldType === 'shared') shared[editCharacterReference!.field] = val;
+    else meta![editCharacterReference!.field] = val;
+  };
+  const referenceChange = async (reference: string) => {
+    if (!reference) return;
+    const path = await imageService.storeReferenceImage(curSession!, reference);
+    getField().push(
+      ReferenceItem.fromJSON({ 
+        path: path, 
+        info: 1.0, 
+        strength: 1.0,
+        description: 'character'
+      }),
+    );
+  };
+
+  return (
+    editCharacterReference && (
+      <div className="w-full h-full overflow-hidden flex flex-col">
+        <div className="flex-1 overflow-hidden">
+          <div className="h-full overflow-auto">
+            {getField().map((reference: ReferenceItem) => (
+              <div
+                key={reference.path}
+                className="border border-gray-300 mt-2 p-2 flex gap-2 items-begin"
+              >
+                <VibeImage
+                  path={
+                    reference.path &&
+                    imageService.getReferenceImagePath(curSession!, reference.path)
+                  }
+                  className="flex-none w-28 h-28 object-cover"
+                />
+                <div className="flex flex-col gap-2 w-full">
+                  <div className="flex w-full items-center md:flex-row flex-col">
+                    <div
+                      className={
+                        'whitespace-nowrap flex-none mr-auto md:mr-0 gray-label'
+                      }
+                    >
+                      정보 추출률 (IE):
+                    </div>
+                    <div className="flex flex-1 md:w-auto w-full gap-1">
+                      <input
+                        className="flex-1"
+                        type="range"
+                        step="0.01"
+                        min="0"
+                        max="1"
+                        value={reference.info}
+                        onChange={(e) => {
+                          reference.info = parseFloat(e.target.value);
+                        }}
+                        disabled={disabled}
+                      />
+                      <div className="w-11 flex-none text-lg text-center back-lllgray">
+                        {reference.info}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex w-full md:flex-row flex-col items-center">
+                    <div
+                      className={
+                        'whitepace-nowrap flex-none mr-auto md:mr-0 gray-label'
+                      }
+                    >
+                      레퍼런스 강도 (RS):
+                    </div>
+                    <div className="flex flex-1 md:w-auto w-full gap-1">
+                      <input
+                        className="flex-1"
+                        type="range"
+                        step="0.01"
+                        min="0"
+                        max="1"
+                        value={reference.strength}
+                        onChange={(e) => {
+                          reference.strength = parseFloat(e.target.value);
+                        }}
+                        disabled={disabled}
+                      />
+                      <div className="w-11 flex-none text-lg text-center back-lllgray">
+                        {reference.strength}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex w-full md:flex-row flex-col items-center">
+                    <div className="flex gap-2 items-center">
+                      <input
+                        type="checkbox"
+                        checked={reference.description === 'character&style'}
+                        onChange={(e) => {
+                          reference.description = e.target.checked ? 'character&style' : 'character';
+                        }}
+                        disabled={disabled}
+                      />
+                      <span className="gray-label">스타일 추가</span>
+                    </div>
+                  </div>
+                  <div className="flex-none flex ml-auto mt-auto">
+                    <button
+                      className={
+                        `round-button h-8 px-8 ml-auto ` +
+                        (disabled ? 'back-gray' : 'back-red')
+                      }
+                      onClick={() => {
+                        if (disabled) return;
+                        setField(getField().filter((x: any) => x !== reference));
+                      }}
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="flex-none mt-auto pt-2 flex gap-2 items-center">
+          <FileUploadBase64
+            notext
+            disabled={disabled}
+            onFileSelect={referenceChange}
+          ></FileUploadBase64>
+          <button
+            className={`round-button back-gray h-8 w-full`}
+            onClick={() => {
+              setEditCharacterReference(undefined);
+            }}
+          >
+            캐릭터 레퍼런스 설정 닫기
+          </button>
+        </div>
+      </div>
+    )
+  );
+});
+
+export const CharacterReferenceButton = ({ input }: { input: WFIInlineInput }) => {
+  const { editCharacterReference, setEditCharacterReference, preset, shared, meta } =
+    useContext(WFElementContext)!;
+  const getField = () => {
+    if (input.fieldType === 'preset') return preset[input.field];
+    if (input.fieldType === 'shared') return shared[input.field];
+    return meta![input.field];
+  };
+  const onClick = () => {
+    setEditCharacterReference(input);
+  };
+  
+  return (
+    <>
+      {editCharacterReference == undefined && getField().length === 0 && (
+        <button
+          className={`round-button back-gray h-8 w-full flex mt-2`}
+          onClick={onClick}
+        >
+          <div className="flex-1">캐릭터 레퍼런스 설정 열기</div>
+        </button>
+      )}
+      {editCharacterReference == undefined && getField().length > 0 && (
+        <div className="w-full flex items-center mt-2">
+          <div className={'flex-none mr-2 gray-label'}>레퍼런스 설정:</div>
+          <VibeImage
+            path={imageService.getReferenceImagePath(
               appState.curSession!,
               getField()[0].path,
             )}
@@ -851,6 +1046,8 @@ interface IWFElementContext {
   middlePromptMode: boolean;
   editVibe: WFIInlineInput | undefined;
   setEditVibe: (vibe: WFIInlineInput | undefined) => void;
+  editCharacterReference: WFIInlineInput | undefined;
+  setEditCharacterReference: (reference: WFIInlineInput | undefined) => void;
   editCharacters: string | undefined;
   setEditCharacters: (field: string | undefined) => void;
   showGroup?: string;
@@ -1383,6 +1580,8 @@ const WFRInline = observer(({ element }: WFElementProps) => {
       );
     case 'vibeSet':
       return <VibeButton input={input} key={key} />;
+    case 'characterReferences':
+      return <CharacterReferenceButton input={input} key={key} />;
     case 'bool':
       return (
         <InlineEditorField label={input.label}>
@@ -1478,6 +1677,9 @@ export const PreSetEditorImpl = observer(
     const [editVibe, setEditVibe] = useState<WFIInlineInput | undefined>(
       undefined,
     );
+    const [editCharacterReference, setEditCharacterReference] = useState<WFIInlineInput | undefined>(
+      undefined,
+    );
     const [editCharacters, setEditCharacters] = useState<string | undefined>(
       undefined,
     );
@@ -1495,6 +1697,8 @@ export const PreSetEditorImpl = observer(
             showGroup: showGroup,
             editVibe: editVibe,
             setEditVibe: setEditVibe,
+            editCharacterReference: editCharacterReference,
+            setEditCharacterReference: setEditCharacterReference,
             editCharacters: editCharacters,
             setEditCharacters: setEditCharacters,
             setShowGroup: setShowGroup,
@@ -1508,6 +1712,7 @@ export const PreSetEditorImpl = observer(
         >
           <WFGroupContext.Provider value={{}}>
             <VibeEditor disabled={false} />
+            <CharacterReferenceEditor disabled={false} />
             {editCharacters && (
               <CharacterPromptEditor
                 input={
@@ -1522,7 +1727,7 @@ export const PreSetEditorImpl = observer(
                 }
               />
             )}
-            {!editVibe && !editCharacters && (
+            {!editVibe && !editCharacters && !editCharacterReference && (
               <WFRenderElement element={element} />
             )}
           </WFGroupContext.Provider>

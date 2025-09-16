@@ -360,7 +360,7 @@ function migratePreset(preset: any): any {
     frontPrompt: preset.frontPrompt,
     backPrompt: preset.backPrompt,
     uc: preset.uc,
-    noiseSchedule: preset.noiseSchedule ?? 'native',
+    noiseSchedule: preset.noiseSchedule ?? 'karras',
     profile: '',
   };
 
@@ -443,7 +443,7 @@ async function migrateInpaintScene(
       sampling: 'k_euler_ancestral',
       prompt: inpaint.prompt,
       uc: inpaint.uc,
-      noiseSchedule: 'native',
+      noiseSchedule: 'karras',
       vibes: [],
       seed: undefined,
     },
