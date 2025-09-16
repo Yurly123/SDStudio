@@ -479,6 +479,8 @@ const InnerEditor: React.FC<InnerEditorProps> = ({ type, shared, preset }) => {
           shared={shared}
           getMiddlePrompt={getPrompt}
           setMiddlePrompt={setPrompt}
+          getCharacterMiddlePrompt={() => ''}
+          setCharacterMiddlePrompt={() => {}}
           queuePrompt={queueprompt}
           setMainImage={setMainImage}
           initialImagePath={undefined}
@@ -1514,7 +1516,7 @@ export const PreSetEditorImpl = observer(
                     label: 'Characters',
                     field: editCharacters,
                     fieldType:
-                      shared.type === 'SDImageGenEasy' ? 'shared' : 'preset',
+                      shared?.type === 'SDImageGenEasy' ? 'shared' : 'preset',
                     flex: 'flex-none',
                   } as WFIInlineInput
                 }

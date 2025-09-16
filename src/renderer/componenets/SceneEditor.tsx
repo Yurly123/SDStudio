@@ -94,8 +94,8 @@ interface BigPromptEditorProps {
   general: boolean;
   getMiddlePrompt: () => string;
   setMiddlePrompt: (txt: string) => void;
-  getCharacterMiddlePrompt?: (index: number) => string;
-  setCharacterMiddlePrompt?: (index: number, txt: string) => void;
+  getCharacterMiddlePrompt: (index: number) => string;
+  setCharacterMiddlePrompt: (index: number, txt: string) => void;
   queuePrompt: (middle: string, callback: (path: string) => void) => void;
   setMainImage?: (path: string) => void;
   initialImagePath?: string;
