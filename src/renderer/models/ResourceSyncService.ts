@@ -97,6 +97,7 @@ export abstract class ResourceSyncService<
         );
         let obj = JSON.parse(str);
         obj = await this.migrate(obj);
+        obj = await this.fillEmptyPresetVars(obj);
         this.resources[name] = this.dummy!.fromJSON(obj);
         await this.onAdded(name);
         this.dispatchEvent(
@@ -166,5 +167,69 @@ export abstract class ResourceSyncService<
     return sessions
       .filter((x: string) => x.endsWith('.json'))
       .map((x: string) => x.substring(0, x.length - 5));
+  }
+
+  private async fillEmptyPresetVars(obj: any) {
+    let updated = false;
+
+    Object.entries(obj.presets).forEach(([key, value]: [string, any]) => {
+      value = value as object[]
+      switch (key) {
+        case 'SDImageGen':
+          for (const preset of value) {
+            fillEmptyVar(preset, 'characterPrompts', []);
+            fillEmptyVar(preset, 'useCoords', false);
+            fillEmptyVar(preset, 'legacyPromptConditioning', false);
+            fillEmptyVar(preset, 'varietyPlus', false);
+          } break;
+        case 'SDImageGenEasy':
+          for (const preset of value) {
+            fillEmptyVar(preset, 'useCoords', false);
+            fillEmptyVar(preset, 'legacyPromptConditioning', false);
+            fillEmptyVar(preset, 'varietyPlus', false);
+          } break;
+        case 'SDInpaint':
+          for (const preset of value) {
+            fillEmptyVar(preset, 'characterPrompts', []);
+            fillEmptyVar(preset, 'useCoords', false);
+            fillEmptyVar(preset, 'legacyPromptConditioning', false);
+            fillEmptyVar(preset, 'varietyPlus', false);
+          } break;
+        case 'SDI2I':
+          for (const preset of value) {
+            fillEmptyVar(preset, 'characterPrompts', []);
+            fillEmptyVar(preset, 'useCoords', false);
+            fillEmptyVar(preset, 'legacyPromptConditioning', false);
+            fillEmptyVar(preset, 'varietyPlus', false);
+            fillEmptyVar(preset, 'characterReferences', []);
+          } break;
+      }
+    });
+    Object.entries(obj.presetShareds).forEach(([key, value]: [string, any]) => {
+      switch (key) {
+        case 'SDImageGen':
+          fillEmptyVar(value, 'normalizeStrength', true);
+          fillEmptyVar(value, 'characterReferences', []);
+          break;
+        case 'SDImageGenEasy':
+          fillEmptyVar(value, 'characterPrompts', []);
+          fillEmptyVar(value, 'normalizeStrength', true);
+          fillEmptyVar(value, 'characterReferences', []);
+          break;
+        case 'SDInpaint':
+      }
+    });
+
+    if (updated)
+      await this.update();
+
+    return obj;
+
+    function fillEmptyVar(obj: any, varName: string, defaultValue: any) {
+      if (!(varName in obj)) {
+        obj[varName] = defaultValue;
+        updated = true;
+      }
+    }
   }
 }

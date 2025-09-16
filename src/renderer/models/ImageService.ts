@@ -194,6 +194,19 @@ export class ImageService extends EventTarget {
     await imageService.invalidateCache(path);
   }
 
+  async fetchReferenceImage(session: Session, name: string) {
+    const path =
+      imageService.getReferenceDir(session) + '/' + name.split('/').pop()!;
+    return await this.fetchImage(path);
+  }
+
+  async writeReferenceImage(session: Session, name: string, data: string) {
+    const path =
+      imageService.getReferenceDir(session) + '/' + name.split('/').pop()!;
+    await backend.writeDataFile(path, data);
+    await imageService.invalidateCache(path);
+  }
+
   async fetchImage(path: string, holdMutex = true) {
     if (holdMutex) await this.acquireMutex(path);
     try {
@@ -369,6 +382,10 @@ export class ImageService extends EventTarget {
     return 'vibes/' + session.name + '/encoded';
   }
 
+  getReferenceDir(session: Session) {
+    return 'references/' + session.name;
+  }
+
   async storeVibeImage(session: Session, data: string) {
     const path = imageService.getVibesDir(session) + '/' + v4() + '.png';
     await backend.writeDataFile(path, data);
@@ -387,6 +404,12 @@ export class ImageService extends EventTarget {
     return path.split('/').pop()!;
   }
 
+  async storeReferenceImage(session: Session, data: string) {
+    const path = imageService.getReferenceDir(session) + '/' + v4() + '.png';
+    await backend.writeDataFile(path, data);
+    return path.split('/').pop()!;
+  }
+
   getVibeImagePath(session: Session, name: string) {
     return imageService.getVibesDir(session) + '/' + name.split('/').pop()!;
   }
@@ -399,6 +422,10 @@ export class ImageService extends EventTarget {
       '&info=' +
       info
     );
+  }
+
+  getReferenceImagePath(session: Session, name: string) {
+    return imageService.getReferenceDir(session) + '/' + name.split('/').pop()!;
   }
 
   async refresh(
