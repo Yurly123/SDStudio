@@ -200,6 +200,24 @@ export class NovelAiImageGenService implements ImageGenService {
           );
       }
     }
+    if (params.characterReferences?.length) {
+      body.parameters.director_reference_images = [];
+      body.parameters.director_reference_descriptions = [];
+      body.parameters.director_reference_strength_values = [];
+      body.parameters.director_reference_information_extracted = [];
+      for (const ref of params.characterReferences) {
+        body.parameters.director_reference_images.push(ref.image);
+        body.parameters.director_reference_descriptions.push({
+          caption: {
+            base_caption: ref.description,
+            char_captions: [],
+          },
+          legacy_uc: params.legacyPromptConditioning,
+        });
+        body.parameters.director_reference_strength_values.push(ref.strength);
+        body.parameters.director_reference_information_extracted.push(ref.info);
+      }
+    }
     if (params.image) {
       body.parameters.image = params.image;
     }

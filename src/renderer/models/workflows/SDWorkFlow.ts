@@ -50,7 +50,8 @@ const SDImageGenPreset = new WFVarBuilder()
 const SDImageGenShared = new WFVarBuilder()
   .addVibeSetVar('vibes')
   .addBoolVar('normalizeStrength', true)
-  .addNullIntVar('seed');
+  .addNullIntVar('seed')
+  .addCharacterReferenceVar('characterReferences');
 
 const SDImageGenUI = wfiStack([
   wfiPresetSelect(),
@@ -88,7 +89,7 @@ const SDImageGenUI = wfiStack([
     wfiInlineInput('Variety+', 'varietyPlus', 'preset', 'flex-none'),
   ]),
   wfiInlineInput('바이브 설정', 'vibes', 'shared', 'flex-none'),
-  
+  wfiInlineInput('캐릭터 레퍼런스', 'characterReferences', 'shared', 'flex-none'),
 ]);
 
 const SDImageGenEasyPreset = new WFVarBuilder()
@@ -119,6 +120,7 @@ const SDImageGenEasyUI = wfiStack([
   wfiInlineInput('시드', 'seed', 'shared', 'flex-none'),
   wfiInlineInput('캐릭터 프롬프트', 'characterPrompts', 'shared', 'flex-none'),
   wfiInlineInput('바이브 설정', 'vibes', 'shared', 'flex-none'),
+  wfiInlineInput('캐릭터 레퍼런스', 'characterReferences', 'shared', 'flex-none'),
 ]);
 
 const SDImageGenEasyInnerUI = wfiStack([
@@ -186,6 +188,7 @@ const SDImageGenHandler = async (
     legacyPromptConditioning: preset.legacyPromptConditioning,
     normalizeStrength: shared.normalizeStrength,
     varietyPlus: preset.varietyPlus,
+    characterReferences: shared.characterReferences,
     noiseSchedule: preset.noiseSchedule,
     backend: preset.backend,
     vibes: shared.vibes,
@@ -357,6 +360,7 @@ const createSDI2IHandler = (type: string) => {
       normalizeStrength: preset.normalizeStrength,
       varietyPlus: preset.varietyPlus,
       noiseSchedule: preset.noiseSchedule,
+      characterReferences: preset.characterReferences,
       backend: preset.backend,
       vibes: preset.vibes,
       strength: preset.strength,
@@ -413,10 +417,9 @@ export const SDInpaintDef = new WFDefBuilder('SDInpaint')
   .setCreatePreset(createInpaintPreset)
   .build();
 
-const SDI2IPreset = SDInpaintPreset.clone().addStringVar(
-  'overrideResolution',
-  '',
-);
+const SDI2IPreset = SDInpaintPreset.clone()
+  .addStringVar('overrideResolution', '',)
+  .addCharacterReferenceVar('characterReferences');
 
 const SDI2IUI = wfiStack([
   wfiInlineInput('이미지', 'image', 'preset', 'flex-none'),
@@ -453,6 +456,7 @@ const SDI2IUI = wfiStack([
     wfiInlineInput('Variety+', 'varietyPlus', 'preset', 'flex-none'),
   ]),
   wfiInlineInput('바이브 설정', 'vibes', 'preset', 'flex-none'),
+  wfiInlineInput('캐릭터 레퍼런스', 'characterReferences', 'preset', 'flex-none'),
   // wfiInlineInput('시드', 'seed', true, 'flex-none'),
 ]);
 
@@ -475,6 +479,7 @@ export function createI2IPreset(
   preset.legacyPromptConditioning = job.legacyPromptConditioning;
   preset.normalizeStrength = job.normalizeStrength;
   preset.varietyPlus = job.varietyPlus;
+  preset.characterPrompts = job.characterPrompts;
   return preset;
 }
 

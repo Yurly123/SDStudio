@@ -98,6 +98,13 @@ export interface Vibe {
   strength: number;
 }
 
+export interface CharacterReference {
+  image: string;
+  info: number;
+  strength: number;
+  description: string;
+}
+
 export interface ImageSize {
   width: number;
   height: number;
@@ -128,6 +135,7 @@ export interface ImageGenInput {
   characterPrompts?: string[];
   characterUCs?: string[];
   characterPositions?: CharacterPosition[];
+  characterReferences?: CharacterReference[];
 }
 
 export type AugmentMethod =
