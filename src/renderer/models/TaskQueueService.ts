@@ -1,5 +1,6 @@
 import { v4 } from 'uuid';
 import {
+  CharacterReference,
   convertResolution,
   ImageAugmentInput,
   ImageGenInput,
@@ -303,7 +304,7 @@ class GenerateImageTaskHandler implements TaskHandler {
         };
       }),
     );
-    let references = [];
+    let references: CharacterReference[] = [];
     if (job.characterReferences?.length)
       references = await Promise.all(
         job.characterReferences?.map(async (ref) => ({
@@ -341,7 +342,7 @@ class GenerateImageTaskHandler implements TaskHandler {
       legacyPromptConditioning: job.legacyPromptConditioning,
       normalizeStrength: job.normalizeStrength,
       varietyPlus: job.varietyPlus,
-      characterReferences: [],
+      characterReferences: references,
       outputFilePath: outputFilePath,
       seed: job.seed,
     };
