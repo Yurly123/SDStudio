@@ -479,7 +479,6 @@ export class WFWorkFlow {
   }
 
   buildShared() {
-    console.log(this.def.sharedVars)
     return materializeWFObj(this.def.type, this.def.sharedVars);
   }
 

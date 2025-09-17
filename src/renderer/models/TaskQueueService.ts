@@ -303,16 +303,18 @@ class GenerateImageTaskHandler implements TaskHandler {
         };
       }),
     );
-    const references = await Promise.all(
-      job.characterReferences?.map(async (ref) => ({
-        image: dataUriToBase64(
-          await imageService.fetchReferenceImage(task.params.session, ref.path) || '',
-        ),
-        info: ref.info,
-        strength: ref.strength,
-        description: ref.description,
-      }))
-    );
+    let references = [];
+    if (job.characterReferences?.length)
+      references = await Promise.all(
+        job.characterReferences?.map(async (ref) => ({
+          image: dataUriToBase64(
+            await imageService.fetchReferenceImage(task.params.session, ref.path) || '',
+          ),
+          info: ref.info,
+          strength: ref.strength,
+          description: ref.description,
+        }))
+      );
     const resol = job.overrideResolution
       ? job.overrideResolution
       : (task.params.scene!.resolution as Resolution);
@@ -339,7 +341,7 @@ class GenerateImageTaskHandler implements TaskHandler {
       legacyPromptConditioning: job.legacyPromptConditioning,
       normalizeStrength: job.normalizeStrength,
       varietyPlus: job.varietyPlus,
-      characterReferences: references,
+      characterReferences: [],
       outputFilePath: outputFilePath,
       seed: job.seed,
     };
