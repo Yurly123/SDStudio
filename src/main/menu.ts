@@ -176,37 +176,6 @@ export default class MenuBuilder {
   }
 
   buildDefaultTemplate() {
-    const isDev =
-      process.env.NODE_ENV === 'development' ||
-      process.env.DEBUG_PROD === 'true';
-    const viewSubmenu: MenuItemConstructorOptions[] = [
-      {
-        label: '&Reload',
-        accelerator: 'Ctrl+R',
-        click: () => {
-          this.mainWindow.webContents.reload();
-        },
-      },
-      {
-        label: 'Toggle &Full Screen',
-        accelerator: 'F11',
-        click: () => {
-          this.mainWindow.setFullScreen(
-            !this.mainWindow.isFullScreen(),
-          );
-        },
-      },
-    ];
-    if (isDev) {
-      viewSubmenu.push({
-        label: 'Toggle &Developer Tools',
-        accelerator: 'F12',
-        click: () => {
-          this.mainWindow.webContents.toggleDevTools();
-        },
-      });
-    }
-
     const templateDefault = [
       {
         label: '&File',
@@ -226,7 +195,45 @@ export default class MenuBuilder {
       },
       {
         label: '&View',
-        submenu: viewSubmenu,
+        submenu:
+          process.env.NODE_ENV === 'development' ||
+          process.env.DEBUG_PROD === 'true'
+            ? [
+                {
+                  label: '&Reload',
+                  accelerator: 'Ctrl+R',
+                  click: () => {
+                    this.mainWindow.webContents.reload();
+                  },
+                },
+                {
+                  label: 'Toggle &Full Screen',
+                  accelerator: 'F11',
+                  click: () => {
+                    this.mainWindow.setFullScreen(
+                      !this.mainWindow.isFullScreen(),
+                    );
+                  },
+                },
+                {
+                  label: 'Toggle &Developer Tools',
+                  accelerator: 'Alt+Ctrl+I',
+                  click: () => {
+                    this.mainWindow.webContents.toggleDevTools();
+                  },
+                },
+              ]
+            : [
+                {
+                  label: 'Toggle &Full Screen',
+                  accelerator: 'F11',
+                  click: () => {
+                    this.mainWindow.setFullScreen(
+                      !this.mainWindow.isFullScreen(),
+                    );
+                  },
+                },
+              ],
       },
       {
         label: 'Help',
