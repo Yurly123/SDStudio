@@ -55,7 +55,17 @@ export default class MenuBuilder {
   buildDarwinTemplate(): MenuItemConstructorOptions[] {
     const subMenuAbout: DarwinMenuItemConstructorOptions = {
       label: 'SDStudio',
-      submenu: [],
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        { role: 'services' },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit' },
+      ],
     };
     const subMenuEdit: DarwinMenuItemConstructorOptions = {
       label: 'Edit',
@@ -92,7 +102,7 @@ export default class MenuBuilder {
         },
         {
           label: 'Toggle Developer Tools',
-          accelerator: 'Alt+Command+I',
+          accelerator: 'F12',
           click: () => {
             this.mainWindow.webContents.toggleDevTools();
           },
@@ -166,6 +176,37 @@ export default class MenuBuilder {
   }
 
   buildDefaultTemplate() {
+    const isDev =
+      process.env.NODE_ENV === 'development' ||
+      process.env.DEBUG_PROD === 'true';
+    const viewSubmenu: MenuItemConstructorOptions[] = [
+      {
+        label: '&Reload',
+        accelerator: 'Ctrl+R',
+        click: () => {
+          this.mainWindow.webContents.reload();
+        },
+      },
+      {
+        label: 'Toggle &Full Screen',
+        accelerator: 'F11',
+        click: () => {
+          this.mainWindow.setFullScreen(
+            !this.mainWindow.isFullScreen(),
+          );
+        },
+      },
+    ];
+    if (isDev) {
+      viewSubmenu.push({
+        label: 'Toggle &Developer Tools',
+        accelerator: 'F12',
+        click: () => {
+          this.mainWindow.webContents.toggleDevTools();
+        },
+      });
+    }
+
     const templateDefault = [
       {
         label: '&File',
@@ -185,45 +226,7 @@ export default class MenuBuilder {
       },
       {
         label: '&View',
-        submenu:
-          process.env.NODE_ENV === 'development' ||
-          process.env.DEBUG_PROD === 'true'
-            ? [
-                {
-                  label: '&Reload',
-                  accelerator: 'Ctrl+R',
-                  click: () => {
-                    this.mainWindow.webContents.reload();
-                  },
-                },
-                {
-                  label: 'Toggle &Full Screen',
-                  accelerator: 'F11',
-                  click: () => {
-                    this.mainWindow.setFullScreen(
-                      !this.mainWindow.isFullScreen(),
-                    );
-                  },
-                },
-                {
-                  label: 'Toggle &Developer Tools',
-                  accelerator: 'Alt+Ctrl+I',
-                  click: () => {
-                    this.mainWindow.webContents.toggleDevTools();
-                  },
-                },
-              ]
-            : [
-                {
-                  label: 'Toggle &Full Screen',
-                  accelerator: 'F11',
-                  click: () => {
-                    this.mainWindow.setFullScreen(
-                      !this.mainWindow.isFullScreen(),
-                    );
-                  },
-                },
-              ],
+        submenu: viewSubmenu,
       },
       {
         label: 'Help',
