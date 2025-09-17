@@ -55,7 +55,17 @@ export default class MenuBuilder {
   buildDarwinTemplate(): MenuItemConstructorOptions[] {
     const subMenuAbout: DarwinMenuItemConstructorOptions = {
       label: 'SDStudio',
-      submenu: [],
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        { role: 'services' },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit' },
+      ],
     };
     const subMenuEdit: DarwinMenuItemConstructorOptions = {
       label: 'Edit',
@@ -92,7 +102,7 @@ export default class MenuBuilder {
         },
         {
           label: 'Toggle Developer Tools',
-          accelerator: 'Alt+Command+I',
+          accelerator: 'F12',
           click: () => {
             this.mainWindow.webContents.toggleDevTools();
           },
