@@ -438,7 +438,7 @@ export const CharacterReferenceEditor = observer(({ disabled }: CharacterReferen
                         }}
                         disabled={disabled}
                       />
-                      <span className="gray-label">스타일 추가</span>
+                      <span className="gray-label">스타일 반영</span>
                     </div>
                   </div>
                   <div className="flex-none flex ml-auto mt-auto">
